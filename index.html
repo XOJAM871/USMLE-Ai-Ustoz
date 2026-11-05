@@ -99,7 +99,7 @@ input[type=text],textarea{flex:1;min-width:0}
     Array.prototype.forEach.call($('tabs').children,function(b){b.classList.toggle('on',b.dataset.t===n)});
     if(n==='anki')rAnki();}
 
-  async function getAI(){if(!sample){try{sample=await claude.use('sample')}catch(e){}}
+  async function getAI(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){if(!sample){try{sample=await claude.use('sample')}catch(e){}}
     if(!sample){$('st').textContent='AI ishlamayapti.'}return sample}
 
   function persona(){
@@ -111,7 +111,7 @@ input[type=text],textarea{flex:1;min-width:0}
 
   function add(c,t){var d=h('div','m '+c,t);$('log').appendChild(d);$('log').scrollTop=1e9;return d}
   async function chat(q){if(busy||!q)return;
-    if(!await getAI())return;busy=true;add('u',q);var el=add('a','Ustoz oʻylanmoqda…');
+    if(!await getAI(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))return;busy=true;add('u',q);var el=add('a','Ustoz oʻylanmoqda…');
     var p='You are an expert USMLE Step 1 tutor based on First Aid, Pathoma, and Kaplan. Reply in '+$('lang').value+'. '+persona()+'\n\nHISTORY:\n'+hist.slice(-6).join('\n')+'\n\nQUESTION: '+q;
     try{var r=await sample(p,{cache:false,onText:function(x){el.textContent=x.text}});el.textContent=r.text;hist.push('S: '+q,'T: '+r.text.slice(0,300))}
     catch(x){el.textContent='Xato yuz berdi: '+((x&&x.message)||'')}busy=false}
@@ -121,7 +121,7 @@ input[type=text],textarea{flex:1;min-width:0}
   $('go').onclick=async function(){
     if(busy)return;
     var topic=$('topic').value.trim();if(!topic){$('st').textContent='Mavzuni kiriting!';return}
-    if(!await getAI())return;busy=true;$('go').disabled=true;$('st').textContent='Ustoz material tayyorlamoqda… 🔥';
+    if(!await getAI(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))return;busy=true;$('go').disabled=true;$('st').textContent='Ustoz material tayyorlamoqda… 🔥';
     var p='You are a USMLE Step 1 CK tutor. Generate comprehensive study material about "'+topic+'" using standard First Aid, Pathoma, and Kaplan knowledge in '+$('lang').value+'. '+persona()+' Return ONLY JSON:\n{"cards":[{"title":"","hook":"one sharp line","points":["3-5 high-yield points"],"mnemonic":"","pearl":"one exam pearl"}] (2 items),\n"cases":[{"vignette":"USMLE style vignette","question":"","options":["A..","B..","C..","D..","E.."] (5),"answer":0-4,"explanation":"why correct","wrong":"why distractors wrong","teach":"one-line teaching point","scold":"ROAST THE STUDENT in street slang if wrong!","praise":"Reaction if correct"}] (3 items),\n"anki":[{"front":"question","back":"concise answer"}] (10 items)}';
     try{var d=await sample.json(p,{cache:false,modelTier:'complex'});
       S.cards=d.cards||[];S.cases=d.cases||[];(d.anki||[]).forEach(function(a){S.anki.push({f:a.front,b:a.back,due:0,ivl:0})});save();
