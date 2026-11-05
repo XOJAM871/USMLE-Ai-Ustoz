@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>USMLE AI Ustoz — Auto Mode</title>
+<style>
+:root{--bg:#faf7f5;--card:#fff;--tx:#1d1a1a;--mu:#6b6363;--ac:#c4161c;--ac2:#fde8e8;--bd:#e7dfdc;--ok:#1b7f3b;--okb:#e3f5e8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141112;--card:#201b1c;--tx:#f3eeee;--mu:#a69c9c;--ac:#ff5a5f;--ac2:#3a1c1e;--bd:#372f30;--ok:#6fd58c;--okb:#16301e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141112;--card:#201b1c;--tx:#f3eeee;--mu:#a69c9c;--ac:#ff5a5f;--ac2:#3a1c1e;--bd:#372f30;--ok:#6fd58c;--okb:#16301e;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:.2em 0}h1 b{color:var(--ac)}
+.mu{color:var(--mu);font-size:.9rem}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,select,input,textarea{font:inherit;color:var(--tx)}
+button{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:600}
+button.g{background:var(--ac2);color:var(--ac)}
+button:disabled{opacity:.5;cursor:default}
+select,input[type=text],textarea{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px}
+input[type=text],textarea{flex:1;min-width:0}
+.tabs{display:flex;gap:6px;margin:10px 0;overflow-x:auto}
+.tabs button{background:var(--card);color:var(--tx);border:1px solid var(--bd);white-space:nowrap}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#log{min-height:240px;max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.m{padding:9px 12px;border-radius:12px;max-width:90%;white-space:pre-wrap;word-wrap:break-word}
+.u{align-self:flex-end;background:var(--ac);color:#fff}.a{align-self:flex-start;background:var(--ac2)}
+.ex{background:#17080a;color:#fff;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #5a1217}
+.ex h2{margin:0 0 4px;font-size:1.6rem;letter-spacing:.5px;text-transform:uppercase}
+.ex .hk{color:#ff4b52;font-weight:700;margin-bottom:10px}
+.ex ul{margin:0 0 10px;padding-left:20px}
+.ex .mn,.ex .pe{border-radius:10px;padding:8px 10px;margin-top:8px}
+.ex .mn{background:#2b0f12}.ex .pe{background:#c4161c}
+.op{display:block;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1px solid var(--bd);margin:6px 0;border-radius:10px;padding:10px}
+.op.ok{background:var(--okb);border-color:var(--ok);font-weight:bold}.op.bad{background:var(--ac2);border-color:var(--ac)}
+.ex2{margin-top:8px;padding:12px;border-radius:10px;background:var(--ac2);border:1px solid var(--bd)}
+.fl{min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.15rem;white-space:pre-wrap;cursor:pointer}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>USMLE <b>AI Ustoz</b> 🔥</h1>
+  <p class="mu">Avtomatik USMLE Step 1 yordamchisi (Kitob tanlash talab etilmaydi).</p>
+
+  <div class="box">
+    <div class="row">
+      <select id="tone" aria-label="Ohang">
+        <option value="street_hard" selected>🔥 Koʻcha tili (Ayamasdan/Qattiq)</option>
+        <option value="street">😎 Koʻcha tili (Yengil tanbeh)</option>
+        <option value="nice">😇 Doʻstona va muloyim</option>
+      </select>
+      <select id="lang" aria-label="Til">
+        <option value="Uzbek">Oʻzbekcha</option>
+        <option value="Russian">Русский</option>
+        <option value="English">English</option>
+      </select>
+    </div>
+    <div id="book" class="mu" style="margin-top:8px">🟢 Tizim avtomatik rejimda ishlamoqda. Shunchaki mavzu yozing.</div>
+    <div class="row" style="margin-top:10px">
+      <input type="text" id="topic" placeholder="Mavzu yoki kasallikni yozing (masalan: Lesch-Nyhan syndrome)">
+      <button id="go">Mavzuni ezib oʻrganish</button>
+    </div>
+    <div id="st" class="mu" style="margin-top:6px"></div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="p-chat" class="box">
+    <div id="log">
+      <div class="m a">Salom! Savolingni yoz. Bilmasang yoki adashsang — Ustoz koʻcha tilida ayamay tarbiyalab qoʻyadi! 😈</div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <textarea id="q" rows="2" placeholder="Savolingni yoz…"></textarea>
+      <button id="send">Yuborish</button>
+    </div>
+  </div>
+  <div id="p-cards" class="hide"></div>
+  <div id="p-cases" class="hide"></div>
+  <div id="p-anki" class="hide"></div>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  function h(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+  var hist=[],busy=false,sample=null,dl=null;
+  var S={cards:[],cases:[],anki:[],ci:0};
+
+  try{var sv=JSON.parse(localStorage.getItem('usmle2')||'null');if(sv){S.anki=sv.anki||[]}}catch(e){}
+  function save(){try{localStorage.setItem('usmle2',JSON.stringify({anki:S.anki}))}catch(e){}}
+
+  var T=[['chat','Chat / Savol-Javob'],['cards','Kartochkalar'],['cases','Klinik Keyslar'],['anki','Anki Kartalar']];
+  T.forEach(function(t){var b=h('button',t[0]==='chat'?'on':'',t[1]);b.dataset.t=t[0];b.onclick=function(){show(t[0])};$('tabs').appendChild(b)});
+  function show(n){T.forEach(function(t){$('p-'+t[0]).classList.toggle('hide',t[0]!==n)});
+    Array.prototype.forEach.call($('tabs').children,function(b){b.classList.toggle('on',b.dataset.t===n)});
+    if(n==='anki')rAnki();}
+
+  async function getAI(){if(!sample){try{sample=await claude.use('sample')}catch(e){}}
+    if(!sample){$('st').textContent='AI ishlamayapti.'}return sample}
+
+  function persona(){
+    var t=$('tone').value;
+    if(t==='nice') return 'Tone: Friendly, gentle, patient medical instructor.';
+    if(t==='street') return 'Tone: Street-smart older brother who speaks in Uzbek street slang (koʻcha tili). Tease the student lightly if they don\'t know easy facts, then explain clearly.';
+    return 'Tone: Extremely strict, aggressive street-smart mentor in raw street slang (koʻcha tili). If the student makes a mistake or asks an obvious question, IMMEDIATELY ROAST AND SCOLD THEM aggressively (e.g., "Ey ahmoq/tentak!", "Buni ham bilmasang tibbiyotni yigʻishtir!", "Shuncha oʻqiganing qani?!", ALL CAPS shouting). After scolding, explain the medical concept in crystal-clear, high-yield detail. Medical accuracy must remain 100% correct.';
+  }
+
+  function add(c,t){var d=h('div','m '+c,t);$('log').appendChild(d);$('log').scrollTop=1e9;return d}
+  async function chat(q){if(busy||!q)return;
+    if(!await getAI())return;busy=true;add('u',q);var el=add('a','Ustoz oʻylanmoqda…');
+    var p='You are an expert USMLE Step 1 tutor based on First Aid, Pathoma, and Kaplan. Reply in '+$('lang').value+'. '+persona()+'\n\nHISTORY:\n'+hist.slice(-6).join('\n')+'\n\nQUESTION: '+q;
+    try{var r=await sample(p,{cache:false,onText:function(x){el.textContent=x.text}});el.textContent=r.text;hist.push('S: '+q,'T: '+r.text.slice(0,300))}
+    catch(x){el.textContent='Xato yuz berdi: '+((x&&x.message)||'')}busy=false}
+  $('send').onclick=function(){var v=$('q').value.trim();$('q').value='';chat(v)};
+  $('q').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('send').click()}});
+
+  $('go').onclick=async function(){
+    if(busy)return;
+    var topic=$('topic').value.trim();if(!topic){$('st').textContent='Mavzuni kiriting!';return}
+    if(!await getAI())return;busy=true;$('go').disabled=true;$('st').textContent='Ustoz material tayyorlamoqda… 🔥';
+    var p='You are a USMLE Step 1 CK tutor. Generate comprehensive study material about "'+topic+'" using standard First Aid, Pathoma, and Kaplan knowledge in '+$('lang').value+'. '+persona()+' Return ONLY JSON:\n{"cards":[{"title":"","hook":"one sharp line","points":["3-5 high-yield points"],"mnemonic":"","pearl":"one exam pearl"}] (2 items),\n"cases":[{"vignette":"USMLE style vignette","question":"","options":["A..","B..","C..","D..","E.."] (5),"answer":0-4,"explanation":"why correct","wrong":"why distractors wrong","teach":"one-line teaching point","scold":"ROAST THE STUDENT in street slang if wrong!","praise":"Reaction if correct"}] (3 items),\n"anki":[{"front":"question","back":"concise answer"}] (10 items)}';
+    try{var d=await sample.json(p,{cache:false,modelTier:'complex'});
+      S.cards=d.cards||[];S.cases=d.cases||[];(d.anki||[]).forEach(function(a){S.anki.push({f:a.front,b:a.back,due:0,ivl:0})});save();
+      rCards();rCases();$('st').textContent='Tayyor! Kartochkalar, keyslar va Anki saqlandi.';show('cards')}
+    catch(x){$('st').textContent='Xatolik: '+((x&&x.message)||'')+'. Qayta urinib koʻring.'}
+    busy=false;$('go').disabled=false};
+
+  function rCards(){var p=$('p-cards');p.textContent='';if(!S.cards.length){p.appendChild(h('div','box mu','Hali kartochka yoʻq.'));return}
+    S.cards.forEach(function(c){var e=h('div','ex');e.appendChild(h('h2','',c.title));e.appendChild(h('div','hk',c.hook));
+      var u=h('ul');(c.points||[]).forEach(function(x){u.appendChild(h('li','',x))});e.appendChild(u);
+      if(c.mnemonic)e.appendChild(h('div','mn','🧠 '+c.mnemonic));if(c.pearl)e.appendChild(h('div','pe','⭐ '+c.pearl));p.appendChild(e)})}
+
+  function rCases(){var p=$('p-cases');p.textContent='';if(!S.cases.length){p.appendChild(h('div','box mu','Hali keys yoʻq.'));return}
+    S.cases.forEach(function(c,ci){var b=h('div','box');b.appendChild(h('div','mu','Keys '+(ci+1)));b.appendChild(h('p','',c.vignette));
+      b.appendChild(h('p','',c.question).appendChild(document.createTextNode('')).parentNode);
+      var done=false,L='ABCDE',ex=h('div','ex2 hide');
+      (c.options||[]).forEach(function(o,i){var bt=h('button','op',L[i]+'. '+o);bt.onclick=function(){if(done)return;done=true;
+        var ok=i===c.answer;bt.classList.add(ok?'ok':'bad');if(!ok)b.querySelectorAll('.op')[c.answer].classList.add('ok');
+        ex.textContent='';ex.appendChild(h('div','',(ok?'✅ '+(c.praise||'')+' ':'🤬 '+(c.scold||'')+' ')+c.explanation));if(c.wrong)ex.appendChild(h('div','mu',c.wrong));
+        if(!ok&&c.teach){S.anki.push({f:c.question||c.vignette.slice(0,120),b:c.teach,due:0,ivl:0});save();ex.appendChild(h('div','mu','➕ Xatoyingiz uchun Anki kartasiga qoʻshildi.'))}
+        ex.classList.remove('hide')};b.appendChild(bt)});
+      b.appendChild(ex);p.appendChild(b)})}
+
+  var DAY=864e5;
+  function rAnki(){var p=$('p-anki');p.textContent='';var now=Date.now();
+    var due=S.anki.filter(function(c){return c.due<=now});var box=h('div','box');
+    box.appendChild(h('div','mu','Jami kartalar: '+S.anki.length+' · Bugun takrorlanadigan: '+due.length));
+    if(!S.anki.length){box.appendChild(h('p','','Kartochka yoʻq. Mavzu boʻlimidan yangi karta yarating.'));p.appendChild(box);return}
+    if(!due.length){box.appendChild(h('p','','🎉 Bugungi takrorlash tugadi! Baraka toping.'))}
+    else{var c=due[0],back=false;var fl=h('div','fl',c.f);box.appendChild(fl);var rt=h('div','row hide');
+      fl.onclick=function(){if(back)return;back=true;fl.textContent=c.f+'\n\n— — —\n\n'+c.b;rt.classList.remove('hide')};
+      [['Qayta (Again)',0],['Qiyin (Hard)',1.2],['Yaxshi (Good)',2.5],['Oson (Easy)',4]].forEach(function(r){var b=h('button',r[1]?'g':'',r[0]);b.onclick=function(){
+        if(!r[1]){c.ivl=0;c.due=Date.now()+6e4}else{c.ivl=Math.max(1,(c.ivl||1)*r[1]);c.due=Date.now()+c.ivl*DAY}save();rAnki()};rt.appendChild(b)});
+      box.appendChild(h('div','mu','Javobni koʻrish uchun bosish kerak.'));box.appendChild(rt)}
+    var ex=h('div','row');ex.style.marginTop='10px';var eb=h('button','g','Anki (.txt) qilib koʻchirish');
+    eb.onclick=async function(){try{dl=dl||await claude.use('downloads');if(!dl){return}
+      await dl.save({filename:'usmle-anki.txt',data:S.anki.map(function(c){return c.f.replace(/\s+/g,' ')+'\t'+c.b.replace(/\s+/g,' ')}).join('\n')})}catch(e){}};
+    ex.appendChild(eb);box.appendChild(ex);p.appendChild(box)}
+
+  rCards();rCases();
+})();
+</script>
+</body>
+</html>
